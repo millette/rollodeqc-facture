@@ -55,6 +55,7 @@
     fieldSetEl.appendChild(inputCoutEl);
     fieldSetEl.appendChild(detailsEl);
     formEl.insertBefore(fieldSetEl, addItemEl);
+    inputProjetEl.focus();
   };
 
   var roundCorner = function(ctx, round, width, height) {
@@ -201,6 +202,7 @@
     if (data.clientLogo && data.clientLogo.value) {
       client.stack.push({ image: data.clientLogo.value, width: 200 });
     }
+    client.stack.push(data.client);
     client.stack.push(data.clientLong);
 
     data.projet.forEach(function (projet, n) {
