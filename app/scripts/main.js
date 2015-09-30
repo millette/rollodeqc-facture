@@ -8,6 +8,7 @@
   var devisDateEl = document.getElementsByName('devisDate')[0];
   var addItemEl = document.getElementById('addItem');
   var downloadEls = formEl.querySelectorAll('button.download-btn');
+  var imageEls = formEl.querySelectorAll('input[type=file]');
 
   var makeInput = function(cnt, label, name, type) {
     var labelEl = document.createElement('label');
@@ -46,13 +47,6 @@
     formEl.insertBefore(fieldSetEl, addItemEl);
   };
 
-
-  var getBase64FromImageUrlFake = function(url, options, cb) {
-    if (cb) { cb(); }
-    else { options(); }
-  };
-
-/*
   var roundCorner = function(ctx, round, width, height) {
     if (!round) { return; }
     ctx.beginPath();
@@ -69,14 +63,22 @@
     ctx.clip();
   };
 
-  var getBase64FromImageUrl = function(url, options, cb) {
+/*
+  var getBase64FromImageUrlFake = function(url, options, cb) {
+    roundCorner();
+    if (cb) { cb(); }
+    else { options(); }
+  };
+*/
+
+  var getBase64FromImage = function(image, options, cb) {
     var img = new Image();
 
     img.onload = function () {
       var canvas = document.createElement('canvas');
       var ctx = canvas.getContext('2d');
       var defaults = {
-        bg: 'black',
+        bg: false,
         round: Math.min(this.width, this.height) / 4,
         co: false
       };
@@ -85,13 +87,46 @@
         cb = options;
         options = defaults;
       }
-      if (!options.bg) { options.bg = defaults.bg; }
       if (options.round === undefined) { options.round = defaults.round; }
       canvas.width = this.width;
       canvas.height = this.height;
       roundCorner(ctx, options.round, this.width, this.height);
-      ctx.fillStyle = options.bg;
-      ctx.fillRect(0, 0, this.width, this.height);
+      if (options.bg) {
+        ctx.fillStyle = options.bg;
+        ctx.fillRect(0, 0, this.width, this.height);
+      }
+      if (options.co) { ctx.globalCompositeOperation = options.co; }
+      ctx.drawImage(this, 0, 0);
+      cb(canvas.toDataURL('image/png'));
+    };
+    img.src = image;
+  };
+
+/*
+  var getBase64FromImageUrl = function(url, options, cb) {
+    var img = new Image();
+
+    img.onload = function () {
+      var canvas = document.createElement('canvas');
+      var ctx = canvas.getContext('2d');
+      var defaults = {
+        bg: false,
+        round: Math.min(this.width, this.height) / 4,
+        co: false
+      };
+
+      if (!cb) {
+        cb = options;
+        options = defaults;
+      }
+      if (options.round === undefined) { options.round = defaults.round; }
+      canvas.width = this.width;
+      canvas.height = this.height;
+      roundCorner(ctx, options.round, this.width, this.height);
+      if (options.bg) {
+        ctx.fillStyle = options.bg;
+        ctx.fillRect(0, 0, this.width, this.height);
+      }
       if (options.co) { ctx.globalCompositeOperation = options.co; }
       ctx.drawImage(this, 0, 0);
       cb(canvas.toDataURL('image/png'));
@@ -114,7 +149,6 @@
         ret.push(list);
       } else { ret.push(part); }
     });
-
     return ret;
   };
 
@@ -146,8 +180,8 @@
     return '#' + data.devisNum + ' ' + data.devisTitre + '.pdf';
   };
 
-  var updatePdf = function(data, download) {
-    data = Object.assign({
+  var fromDefaults = function(data) {
+    return Object.assign({
       consultant: '[nom-consultant]',
       client: '[nom-client]',
       devisTitre: '[titre-devis]',
@@ -162,128 +196,132 @@
       marginWidth: 60,
       marginHeight: 140
     }, data);
+  };
 
-    getBase64FromImageUrlFake('images/logo.png', function (image) {
-      var extraMargin = [
-        data.marginWidth,
-        data.marginHeight / 2,
-        data.marginWidth,
-        data.marginHeight / 2
-      ];
-      var tableBody = [[
-        { text: '#', style: 'tableHeader'},
-        { text: 'Projet', style: 'tableHeader'},
-        { text: 'Description', style: 'tableHeader'},
-        { text: 'Coût', style: 'tableHeader', alignment: 'right' }
-      ]];
-      var notesHeader = [ '\n', { style: 'header', text: 'Notes' } ];
-      var annexe = [ { style: 'header', text: 'Annexe' } ];
+  var updatePdf = function(data, download) {
+    var tableBody = [[
+      { text: '#', style: 'tableHeader'},
+      { text: 'Projet', style: 'tableHeader'},
+      { text: 'Description', style: 'tableHeader'},
+      { text: 'Coût', style: 'tableHeader', alignment: 'right' }
+    ]];
+    var notesHeader = [ '\n', { style: 'header', text: 'Notes' } ];
+    var annexe = [ { style: 'header', text: 'Annexe' } ];
+    var pageSize = 'LETTER';
+    var currency = ' $';
+    var items = [];
+    var consultant, extraMargin, coutTotal, docDefinition, pdf;
 
-      var consultant = [
-        { width: 'auto', text: data.consultant + '\n' + data.consultantLong }
-      ];
+    data = fromDefaults(data);
 
-      var pageSize = 'LETTER';
-      var devisNum = data.devisNum;
-      var devisTitre = data.devisTitre;
-      var currency = ' $';
-      var items = [];
-      var coutTotal, docDefinition, pdf;
+    extraMargin = [
+      data.marginWidth,
+      data.marginHeight / 2,
+      data.marginWidth,
+      data.marginHeight / 2
+    ];
 
-      data.projet.forEach(function (projet, n) {
-        items.push({
-          projet: projet,
-          description: data.description[n],
-          cout: parseInt(data.cout[n], 10) || 0,
-          details: parseDetails(data.details[n])
-        });
+    consultant = [
+      { width: 'auto', text: data.consultant + '\n' + data.consultantLong }
+    ];
+
+    data.projet.forEach(function (projet, n) {
+      items.push({
+        projet: projet,
+        description: data.description[n],
+        cout: parseInt(data.cout[n], 10) || 0,
+        details: parseDetails(data.details[n])
       });
+    });
 
-      coutTotal = 0;
-      items.forEach(function (item) {
-        coutTotal += item.cout;
-        tableBody.push([
-          '' + tableBody.length,
-          item.projet,
-          item.description,
-          { text: item.cout + currency, bold: true, alignment: 'right' }
-        ]);
-      });
-
+    coutTotal = 0;
+    items.forEach(function (item) {
+      coutTotal += item.cout;
       tableBody.push([
-        '',
-        { text: 'Les détails se trouvent en annexe', italic: true},
-        { alignment: 'right', text: 'Total', style: 'tableHeader' },
-        { alignment: 'right', text: coutTotal + currency, style: 'tableHeader' }
+        '' + tableBody.length,
+        item.projet,
+        item.description,
+        { text: item.cout + currency, bold: true, alignment: 'right' }
       ]);
+    });
 
-      if (image) { consultant.push({ image: image, alignment: 'right' }); }
-      docDefinition = {
-        header: {
+    tableBody.push([
+      '',
+      { text: 'Les détails se trouvent en annexe', italic: true},
+      { alignment: 'right', text: 'Total', style: 'tableHeader' },
+      { alignment: 'right', text: coutTotal + currency, style: 'tableHeader' }
+    ]);
+
+    //getBase64FromImageUrlFake('images/logo.png', function (image) {
+    if (data.consultantLogo && data.consultantLogo.value) {
+      consultant.push({ image: data.consultantLogo.value, alignment: 'right' });
+    }
+    docDefinition = {
+      header: {
+        margin: extraMargin,
+        columns: [
+          {
+            width: 'auto',
+            text: 'Devis de ' + data.consultant + ' pour ' + data.client,
+            style: 'extra'
+          },
+          { text: data.devisDate, alignment: 'right' }
+        ]
+      },
+      footer: function (current, pages) {
+        return {
           margin: extraMargin,
           columns: [
-            {
-              width: 'auto',
-              text: 'Devis de ' + data.consultant + ' pour ' + data.client,
-              style: 'extra'
-            },
-            { text: data.devisDate, alignment: 'right' }
+            { text: 'Devis #' + data.devisNum, style: 'extra' },
+            { text: 'Page ' + current + ' de ' + pages, alignment: 'right'}
           ]
+        };
+      },
+      pageSize: pageSize,
+      pageMargins: [ data.marginWidth, data.marginHeight, data.marginWidth, data.marginHeight ],
+      content: [
+        { columns: consultant },
+        { text: data.clientLong, alignment: 'right' },
+        '\n',
+        { text: 'Devis', style: 'header' },
+        { text: data.devisTitre, style: 'header2' },
+        'numéro de devis: ' + data.devisNum,
+        '\n',
+        {
+          table: {
+            headerRows: 1,
+            widths: ['5%', '40%', '40%', '15%'],
+            body: tableBody
+          }
         },
-        footer: function (current, pages) {
-          return {
-            margin: extraMargin,
-            columns: [
-              { text: 'Devis #' + devisNum, style: 'extra' },
-              { text: 'Page ' + current + ' de ' + pages, alignment: 'right'}
-            ]
-          };
-        },
-        pageSize: pageSize,
-        pageMargins: [ data.marginWidth, data.marginHeight, data.marginWidth, data.marginHeight ],
-        content: [
-          { columns: consultant },
-          { text: data.clientLong, alignment: 'right' },
-          '\n',
-          { text: 'Devis', style: 'header' },
-          { text: devisTitre, style: 'header2' },
-          'numéro de devis: ' + devisNum,
-          '\n',
-          {
-            table: {
-              headerRows: 1,
-              widths: ['5%', '40%', '40%', '15%'],
-              body: tableBody
-            }
-          },
-          '\n'
-        ],
-        styles: {
-          header: { fontSize: 22, bold: true },
-          header2: { fontSize: 18, bold: true },
-          extra: { fontSize: 15 },
-          tableHeader: { bold: true, fontSize: 15 }
-        }
-      };
+        '\n'
+      ],
+      styles: {
+        header: { fontSize: 22, bold: true },
+        header2: { fontSize: 18, bold: true },
+        extra: { fontSize: 15 },
+        tableHeader: { bold: true, fontSize: 15 }
+      }
+    };
 
-      if (!data.singlePage) { annexe[0].pageBreak = 'before'; }
-      items.forEach(function (item, n) {
-        var anx = [ { text: (n + 1) + '. ' + item.projet, style: 'header2' } ];
+    if (!data.singlePage) { annexe[0].pageBreak = 'before'; }
+    items.forEach(function (item, n) {
+      var anx = [ { text: (n + 1) + '. ' + item.projet, style: 'header2' } ];
 
-        item.details.forEach(function (paragraph) {
-          anx.push(paragraph);
-          anx.push('\n');
-        });
-        annexe.push(anx);
+      item.details.forEach(function (paragraph) {
+        anx.push(paragraph);
+        anx.push('\n');
       });
-      docDefinition.content = docDefinition.content.concat(
-        data.conditions, '\n', annexe, notesHeader, data.notes);
-      pdf = pdfMake.createPdf(docDefinition);
-      if (download) { pdf.download(devisFilename(data)); }
-      else { pdf.getDataUrl(function (outDoc) {
-        document.getElementById('pdfV').src = outDoc;
-      }); }
+      annexe.push(anx);
     });
+    docDefinition.content = docDefinition.content.concat(
+      data.conditions, '\n', annexe, notesHeader, data.notes);
+    pdf = pdfMake.createPdf(docDefinition);
+    if (download) { pdf.download(devisFilename(data)); }
+    else { pdf.getDataUrl(function (outDoc) {
+      document.getElementById('pdfV').src = outDoc;
+    }); }
+    //});
   };
 
   var formSubmit = function(download, event) {
@@ -293,30 +331,66 @@
 
     if (event) { event.preventDefault(); }
     for (r = 0; r < stuff.length; ++r) {
-      trimmed = stuff[r].value.trim();
-      if (stuff[r].name.indexOf('[]') === stuff[r].name.length - 2) {
-        name = stuff[r].name.slice(0, -2);
-        value = trimmed || ('[' + name + ']');
-        if (ret[name] === undefined) { ret[name] = [value]; }
-        else { ret[name].push(value); }
-      } else if (trimmed) {
-        if (stuff[r].type === 'checkbox') {
-          ret[stuff[r].name] = stuff[r].checked;
-        } else if (stuff[r].type === 'number') {
-          ret[stuff[r].name] = parseInt(trimmed, 10);
-        } else {
-          ret[stuff[r].name] = trimmed;
+      if (stuff[r].files && stuff[r].files[0]) {
+        ret[stuff[r].name] = stuff[r].files[0];
+      } else {
+        trimmed = stuff[r].value.trim();
+        if (stuff[r].name.indexOf('[]') === stuff[r].name.length - 2) {
+          name = stuff[r].name.slice(0, -2);
+          value = trimmed || ('[' + name + ']');
+          if (ret[name] === undefined) { ret[name] = [value]; }
+          else { ret[name].push(value); }
+        } else if (trimmed) {
+          if (stuff[r].type === 'checkbox') {
+            ret[stuff[r].name] = stuff[r].checked;
+          } else if (stuff[r].type === 'number') {
+            ret[stuff[r].name] = parseInt(trimmed, 10);
+          } else { ret[stuff[r].name] = trimmed; }
         }
       }
     }
+    console.log('RET:', ret);
     updatePdf(ret, download);
   };
 
+  var uploadImage = function(event) {
+    var file = event.target.files[0];
+    var imageUrl;
+//    var reader;
+
+    if (!file.type.match(/^image\//)) {
+      throw new Error('');
+    }
+
+    //console.log('IMAGE (1)', file);
+    imageUrl = URL.createObjectURL(file);
+    getBase64FromImage(imageUrl, function (a) {
+      event.target.files[0].value = a;
+    });
+
+/*
+    console.log('imageUrl', imageUrl);
+    reader = new FileReader();
+    reader.onloadend = (function(a) {
+      console.log('A', a);
+      return function(e) {
+        // ...
+        console.log('E', e);
+        //delete event.target.files;
+      };
+    }(file));
+    reader.readAsDataURL(file);
+*/
+  };
+
   devisDateEl.value = dateFrench();
-  formEl.addEventListener('submit', formSubmit);
+  formEl.addEventListener('submit', formSubmit.bind(null, false));
   addItemEl.addEventListener('click', addItemForm);
   for (r = 0; r < downloadEls.length; ++r) {
     downloadEls[r].addEventListener('click', formSubmit.bind(null, true));
+  }
+  for (r = 0; r < imageEls.length; ++r) {
+    imageEls[r].addEventListener('change', uploadImage);
   }
   addItemForm();
   formSubmit();
