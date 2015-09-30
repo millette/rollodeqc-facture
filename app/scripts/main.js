@@ -10,7 +10,7 @@
   var downloadEls = formEl.querySelectorAll('button.download-btn');
   var imageEls = formEl.querySelectorAll('input[type=file]');
 
-  var makeInput = function(cnt, label, name, type) {
+  var makeInput = function(label, name, type) {
     var labelEl = document.createElement('label');
     var inputEl = document.createElement('input');
 
@@ -24,22 +24,32 @@
   };
 
   var addItemForm = function() {
-    var cnt = formEl.querySelectorAll('fieldset.project').length;
     var fieldSetEl = document.createElement('fieldset');
     var legendEl = document.createElement('legend');
-    var inputProjetEl = makeInput(cnt, 'projet');
-    var inputDescriptionEl = makeInput(cnt, 'description');
-    var inputCoutEl = makeInput(cnt, 'coût', 'cout', 'number');
+    var inputProjetEl = makeInput('projet');
+    var inputDescriptionEl = makeInput('description');
+    var inputCoutEl = makeInput('coût', 'cout', 'number');
     var detailsEl = document.createElement('label');
     var detailsTextareaEl = document.createElement('textarea');
+    var deleteEl = document.createElement('button');
 
+    deleteEl.innerHTML = '[X]';
+    deleteEl.addEventListener('click', function(event) {
+      event.preventDefault();
+      if (formEl.querySelectorAll('fieldset.project').length > 1) {
+        formEl.removeChild(event.target.parentNode);
+      }
+    });
+
+    deleteEl.setAttribute('class', 'delete-btn');
     detailsTextareaEl.setAttribute('name', 'details[]');
     detailsTextareaEl.setAttribute('rows', 5);
     detailsEl.appendChild(document.createTextNode('détails: '));
     detailsEl.appendChild(detailsTextareaEl);
-    legendEl.innerHTML = 'Item #' + (cnt + 1);
+    legendEl.innerHTML = 'Item';
     fieldSetEl.setAttribute('class', 'project');
     fieldSetEl.appendChild(legendEl);
+    fieldSetEl.appendChild(deleteEl);
     fieldSetEl.appendChild(inputProjetEl);
     fieldSetEl.appendChild(inputDescriptionEl);
     fieldSetEl.appendChild(inputCoutEl);
@@ -280,7 +290,6 @@
     docDefinition.content = docDefinition.content.concat(
       data.conditions, '\n', annexe, notesHeader, data.notes);
 
-    console.log('docDefinition', docDefinition);
     pdf = pdfMake.createPdf(docDefinition);
     if (download) { pdf.download(devisFilename(data)); }
     else { pdf.getDataUrl(function (outDoc) {
@@ -313,7 +322,6 @@
         }
       }
     }
-    console.log('RET:', ret);
     updatePdf(ret, download);
   };
 

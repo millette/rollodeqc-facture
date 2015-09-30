@@ -4,12 +4,17 @@ body {
   color: #333;
 }
 
-
 .browserupgrade {
   margin: 0.2em 0;
   background: #ccc;
   color: #000;
   padding: 0.2em 0;
+}
+
+iframe#pdfV {
+  float: right;
+  width: 8.5in;
+  height: 11.5in;
 }
 
 fieldset {
@@ -32,4 +37,11 @@ input[type=file] {
 
 textarea {
   width: 100%;
+}
+
+
+button.delete-btn {
+  float: right;
+  width: 2em;
+  margin-top: -2em;
 }
