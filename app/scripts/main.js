@@ -63,14 +63,6 @@
     ctx.clip();
   };
 
-/*
-  var getBase64FromImageUrlFake = function(url, options, cb) {
-    roundCorner();
-    if (cb) { cb(); }
-    else { options(); }
-  };
-*/
-
   var getBase64FromImage = function(image, options, cb) {
     var img = new Image();
 
@@ -101,39 +93,6 @@
     };
     img.src = image;
   };
-
-/*
-  var getBase64FromImageUrl = function(url, options, cb) {
-    var img = new Image();
-
-    img.onload = function () {
-      var canvas = document.createElement('canvas');
-      var ctx = canvas.getContext('2d');
-      var defaults = {
-        bg: false,
-        round: Math.min(this.width, this.height) / 4,
-        co: false
-      };
-
-      if (!cb) {
-        cb = options;
-        options = defaults;
-      }
-      if (options.round === undefined) { options.round = defaults.round; }
-      canvas.width = this.width;
-      canvas.height = this.height;
-      roundCorner(ctx, options.round, this.width, this.height);
-      if (options.bg) {
-        ctx.fillStyle = options.bg;
-        ctx.fillRect(0, 0, this.width, this.height);
-      }
-      if (options.co) { ctx.globalCompositeOperation = options.co; }
-      ctx.drawImage(this, 0, 0);
-      cb(canvas.toDataURL('image/png'));
-    };
-    img.src = url;
-  };
-*/
 
   var parseDetails = function(details) {
     var ret = [];
@@ -252,7 +211,6 @@
       { alignment: 'right', text: coutTotal + currency, style: 'tableHeader' }
     ]);
 
-    //getBase64FromImageUrlFake('images/logo.png', function (image) {
     if (data.consultantLogo && data.consultantLogo.value) {
       consultant.push({ image: data.consultantLogo.value, alignment: 'right' });
     }
@@ -321,7 +279,6 @@
     else { pdf.getDataUrl(function (outDoc) {
       document.getElementById('pdfV').src = outDoc;
     }); }
-    //});
   };
 
   var formSubmit = function(download, event) {
@@ -356,31 +313,14 @@
   var uploadImage = function(event) {
     var file = event.target.files[0];
     var imageUrl;
-//    var reader;
 
     if (!file.type.match(/^image\//)) {
       throw new Error('');
     }
 
-    //console.log('IMAGE (1)', file);
-    imageUrl = URL.createObjectURL(file);
-    getBase64FromImage(imageUrl, function (a) {
-      event.target.files[0].value = a;
+    getBase64FromImage(URL.createObjectURL(file), function (img) {
+      event.target.files[0].value = img;
     });
-
-/*
-    console.log('imageUrl', imageUrl);
-    reader = new FileReader();
-    reader.onloadend = (function(a) {
-      console.log('A', a);
-      return function(e) {
-        // ...
-        console.log('E', e);
-        //delete event.target.files;
-      };
-    }(file));
-    reader.readAsDataURL(file);
-*/
   };
 
   devisDateEl.value = dateFrench();
