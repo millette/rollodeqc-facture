@@ -1,0 +1,35 @@
+body {
+  background: #fafafa;
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  color: #333;
+}
+
+
+.browserupgrade {
+  margin: 0.2em 0;
+  background: #ccc;
+  color: #000;
+  padding: 0.2em 0;
+}
+
+fieldset {
+  max-width: 18em;
+}
+
+label {
+  display: block;
+}
+
+input {
+  width: 15em;
+  float: right;
+}
+
+input[type=file] {
+  float: none;
+  width: auto;
+}
+
+textarea {
+  width: 100%;
+}

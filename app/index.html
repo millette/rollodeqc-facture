@@ -1,0 +1,79 @@
+<!doctype html>
+<html class="no-js" lang="fr">
+  <head>
+    <meta charset="utf-8">
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>devis 1</title>
+
+    <link rel="apple-touch-icon" href="apple-touch-icon.png">
+    <!-- Place favicon.ico in the root directory -->
+
+    <!-- build:css styles/vendor.css -->
+    <!-- bower:css -->
+    <!-- endbower -->
+    <!-- endbuild -->
+
+    <!-- build:css styles/main.css -->
+    <link rel="stylesheet" href="styles/main.css">
+    <!-- endbuild -->
+
+    <!-- build:js scripts/vendor/modernizr.js -->
+    <script src="/bower_components/modernizr/modernizr.js"></script>
+    <!-- endbuild -->
+  </head>
+  <body>
+    <!--[if lt IE 10]>
+      <p class="browserupgrade">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
+    <![endif]-->
+
+    <iframe style="float: right; width: 8.5in; height: 11.5in;" id="pdfV"></iframe>
+    <h1>Générateur de Devis</h1>
+    <form>
+      <button class="download-btn" type="button">Télécharger</button>
+      <button type="submit">Mettre à jour</button>
+      <fieldset>
+        <legend>consultant</legend>
+        <label>nom:<input type="text" name="consultant" value=""></label>
+        <label>adresse:<textarea rows="5" name="consultantLong"></textarea></label>
+        <label>logo:<input type="file" name="consultantLogo"></label>
+      </fieldset>
+      <fieldset>
+        <legend>client</legend>
+        <label>nom:<input type="text" name="client" value=""></label>
+        <label>adresse:<textarea rows="5" name="clientLong"></textarea></label>
+        <label>logo:<input type="file" name="clientLogo"></label>
+      </fieldset>
+      <fieldset>
+        <legend>Marges</legend>
+        <label><input type="checkbox" name="singlePage">sur une seule page</label>
+        <label>hauteur:<input type="number" name="marginHeight" value="140" step="5"></label>
+        <label>largeur:<input type="number" name="marginWidth" value="60" step="5"></label>
+      </fieldset>
+      <fieldset>
+        <legend>Informations</legend>
+        <label>titre:<input type="text" name="devisTitre" value=""></label>
+        <label># de devis:<input type="number" name="devisNum" value="1"></label>
+        <label>date:<input type="date" name="devisDate" value=""></label>
+        <label>conditions:<textarea rows="5" name="conditions">TPS et TVQ non applicables.
+Délai de réalisation: 4 semaines.
+Offre valable 3 mois.</textarea></label>
+        <label>notes:<textarea rows="5" name="notes"></textarea></label>
+      </fieldset>
+      <button id="addItem" type="button">Ajouter un item</button>
+      <button class="download-btn" type="button">Télécharger</button>
+      <button type="submit">Mettre à jour</button>
+    </form>
+
+    <!-- build:js scripts/vendor.js -->
+    <!-- bower:js -->
+    <script src="/bower_components/pdfmake/build/pdfmake.js"></script>
+    <script src="/bower_components/pdfmake/build/vfs_fonts.js"></script>
+    <!-- endbower -->
+    <!-- endbuild -->
+
+    <!-- build:js scripts/main.js -->
+    <script src="scripts/main.js"></script>
+    <!-- endbuild -->
+  </body>
+</html>

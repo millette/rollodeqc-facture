@@ -1,0 +1,12 @@
+{
+  "name": "devis-1",
+  "private": true,
+  "dependencies": {
+    "modernizr": "~2.8.1",
+    "pdfmake": "~0.1.18"
+  },
+  "devDependencies": {
+    "chai": "~3.3.0",
+    "mocha": "~2.3.3"
+  }
+}
