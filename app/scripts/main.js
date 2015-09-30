@@ -169,7 +169,9 @@
     var pageSize = 'LETTER';
     var currency = ' $';
     var items = [];
-    var consultant, extraMargin, coutTotal, docDefinition, pdf;
+    var client = { stack: [], alignment: 'right', width: '*' };
+    var consultant = { stack: [], width: '*' };
+    var extraMargin, coutTotal, docDefinition, pdf;
 
     data = fromDefaults(data);
 
@@ -180,9 +182,16 @@
       data.marginHeight / 2
     ];
 
-    consultant = [
-      { width: 'auto', text: data.consultant + '\n' + data.consultantLong }
-    ];
+    if (data.consultantLogo && data.consultantLogo.value) {
+      consultant.stack.push({ image: data.consultantLogo.value, width: 200 });
+    }
+    consultant.stack.push(data.consultant);
+    consultant.stack.push(data.consultantLong);
+
+    if (data.clientLogo && data.clientLogo.value) {
+      client.stack.push({ image: data.clientLogo.value, width: 200 });
+    }
+    client.stack.push(data.clientLong);
 
     data.projet.forEach(function (projet, n) {
       items.push({
@@ -211,9 +220,6 @@
       { alignment: 'right', text: coutTotal + currency, style: 'tableHeader' }
     ]);
 
-    if (data.consultantLogo && data.consultantLogo.value) {
-      consultant.push({ image: data.consultantLogo.value, alignment: 'right' });
-    }
     docDefinition = {
       header: {
         margin: extraMargin,
@@ -238,8 +244,7 @@
       pageSize: pageSize,
       pageMargins: [ data.marginWidth, data.marginHeight, data.marginWidth, data.marginHeight ],
       content: [
-        { columns: consultant },
-        { text: data.clientLong, alignment: 'right' },
+        { columns: [ consultant, client ] },
         '\n',
         { text: 'Devis', style: 'header' },
         { text: data.devisTitre, style: 'header2' },
@@ -274,6 +279,8 @@
     });
     docDefinition.content = docDefinition.content.concat(
       data.conditions, '\n', annexe, notesHeader, data.notes);
+
+    console.log('docDefinition', docDefinition);
     pdf = pdfMake.createPdf(docDefinition);
     if (download) { pdf.download(devisFilename(data)); }
     else { pdf.getDataUrl(function (outDoc) {
@@ -312,13 +319,15 @@
 
   var uploadImage = function(event) {
     var file = event.target.files[0];
-    var imageUrl;
+    var options = {};
+    var name;
 
-    if (!file.type.match(/^image\//)) {
-      throw new Error('');
-    }
+    if (!file.type.match(/^image\//)) { throw new Error(''); }
 
-    getBase64FromImage(URL.createObjectURL(file), function (img) {
+    if (event.target.name === 'consultantLogo') { name = 'consultantBlackBG'; }
+    else if (event.target.name === 'clientLogo') { name = 'clientBlackBG'; }
+    if (name && document.getElementsByName(name)[0].checked) { options.bg = 'black'; }
+    getBase64FromImage(URL.createObjectURL(file), options, function (img) {
       event.target.files[0].value = img;
     });
   };
