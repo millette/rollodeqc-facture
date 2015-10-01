@@ -1,5 +1,5 @@
 * Checkbox "fond noir" s'applique seulement au moment de l'upload
-* Enlever le logo
+* Enlever un logo
 * Currency
 * Anglais
 * Taxes
@@ -8,3 +8,5 @@
 * lien vers rollodeqc et robin millette et sources et twitter
 * application cache (offline)
 * layout responsive (avec postcss/stylus/lost?)
+* hide pdf
+* make html preview

@@ -55,7 +55,7 @@
     fieldSetEl.appendChild(inputCoutEl);
     fieldSetEl.appendChild(detailsEl);
     formEl.insertBefore(fieldSetEl, addItemEl);
-    if (init) { inputProjetEl.focus(); }
+    if (!init) { inputProjetEl.focus(); }
   };
 
   var roundCorner = function(ctx, round, width, height) {
