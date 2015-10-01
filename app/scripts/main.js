@@ -23,7 +23,7 @@
     return labelEl;
   };
 
-  var addItemForm = function() {
+  var addItemForm = function(init) {
     var fieldSetEl = document.createElement('fieldset');
     var legendEl = document.createElement('legend');
     var inputProjetEl = makeInput('projet');
@@ -55,7 +55,7 @@
     fieldSetEl.appendChild(inputCoutEl);
     fieldSetEl.appendChild(detailsEl);
     formEl.insertBefore(fieldSetEl, addItemEl);
-    inputProjetEl.focus();
+    if (init) { inputProjetEl.focus(); }
   };
 
   var roundCorner = function(ctx, round, width, height) {
@@ -146,8 +146,9 @@
     return units.join(' ');
   };
 
-  var devisFilename = function(data) {
-    return '#' + data.devisNum + ' ' + data.devisTitre + '.pdf';
+  var devisFilename = function(data, extension) {
+    if (extension === undefined) { extension = '.pdf'; }
+    return '#' + data.devisNum + ' ' + data.devisTitre + extension;
   };
 
   var fromDefaults = function(data) {
@@ -166,6 +167,19 @@
       marginWidth: 60,
       marginHeight: 140
     }, data);
+  };
+
+  var downloadJson = function(filename, docDefinition) {
+    var saveLink = document.createElementNS('http://www.w3.org/1999/xhtml', 'a');
+    var event = document.createEvent('MouseEvents');
+
+    saveLink.href = 'data:application/json;charset=utf8,' +
+      encodeURIComponent(JSON.stringify(docDefinition, null, ' '));
+
+    saveLink.download = filename;
+    event.initMouseEvent('click', true, false, window, 0, 0, 0, 0, 0,
+      false, false, false, false, 0, null);
+    saveLink.dispatchEvent(event);
   };
 
   var updatePdf = function(data, download) {
@@ -292,11 +306,13 @@
     docDefinition.content = docDefinition.content.concat(
       data.conditions, '\n', annexe, notesHeader, data.notes);
 
-    pdf = pdfMake.createPdf(docDefinition);
-    if (download) { pdf.download(devisFilename(data)); }
-    else { pdf.getDataUrl(function (outDoc) {
-      document.getElementById('pdfV').src = outDoc;
-    }); }
+    if (download === 'json') {
+      downloadJson(devisFilename(data, '.json'), docDefinition);
+    } else {
+      pdf = pdfMake.createPdf(docDefinition);
+      if (download === 'pdf') { pdf.download(devisFilename(data)); }
+      else { pdf.getDataUrl(function (outDoc) { document.getElementById('pdfV').src = outDoc; }); }
+    }
   };
 
   var formSubmit = function(download, event) {
@@ -306,6 +322,7 @@
 
     if (event) { event.preventDefault(); }
     for (r = 0; r < stuff.length; ++r) {
+      if (stuff[r].type === 'button') { continue; }
       if (stuff[r].files && stuff[r].files[0]) {
         ret[stuff[r].name] = stuff[r].files[0];
       } else {
@@ -346,11 +363,12 @@
   formEl.addEventListener('submit', formSubmit.bind(null, false));
   addItemEl.addEventListener('click', addItemForm);
   for (r = 0; r < downloadEls.length; ++r) {
-    downloadEls[r].addEventListener('click', formSubmit.bind(null, true));
+    downloadEls[r].addEventListener('click', formSubmit.bind(null, downloadEls[r].value));
   }
+
   for (r = 0; r < imageEls.length; ++r) {
     imageEls[r].addEventListener('change', uploadImage);
   }
-  addItemForm();
+  addItemForm(true);
   formSubmit();
 }());
