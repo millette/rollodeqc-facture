@@ -10,3 +10,4 @@
 * layout responsive (avec postcss/stylus/lost?)
 * hide pdf
 * make html preview
+* html title
