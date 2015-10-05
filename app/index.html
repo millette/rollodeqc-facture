@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="description" content="">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>devis 1</title>
+    <title>Générateur de devis RoLLodeQc</title>
 
     <link rel="apple-touch-icon" href="apple-touch-icon.png">
     <!-- Place favicon.ico in the root directory -->
@@ -40,7 +40,7 @@
       <button class="download-btn" type="button" value="json">JSON</button>
       <button class="download-btn" type="button" value="pdf">PDF</button>
       <button type="submit">Mettre à jour</button>
-      <fieldset>
+      <fieldset class="consultant-form">
         <legend>consultant</legend>
         <label>nom:<input type="text" name="consultant" value=""></label>
         <label>adresse:<textarea rows="5" name="consultantLong"></textarea></label>
@@ -80,6 +80,7 @@ Offre valable 3 mois.</textarea></label>
     <!-- bower:js -->
     <script src="/bower_components/pdfmake/build/pdfmake.js"></script>
     <script src="/bower_components/pdfmake/build/vfs_fonts.js"></script>
+    <script src="/bower_components/locallyjs/dist/locally.min.js"></script>
     <!-- endbower -->
     <!-- endbuild -->
 

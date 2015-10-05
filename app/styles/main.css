@@ -44,3 +44,20 @@ button.delete-btn {
   width: 2em;
   margin-top: -2em;
 }
+
+/*#vavoom-consultant {*/
+.vavoom {
+  display: none;
+  position: absolute;
+  list-style: none;
+  padding-left: 0;
+}
+
+/*#vavoom-consultant a {*/
+.vavoom a {
+  display: block;
+  padding: 0.125em;
+  margin: 0.125em;
+  background: black;
+  color: white;
+}

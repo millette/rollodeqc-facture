@@ -1,10 +1,21 @@
 (function() {
-  /* global pdfMake*/
+  /* global pdfMake Locally*/
   'use strict';
 
   var r;
 
+  var store = new Locally.Store();
+  var consultantEl = document.getElementsByName('consultant')[0];
+  var consultantLongEl = document.getElementsByName('consultantLong')[0];
+  var consultantLogoEl = document.getElementsByName('consultantLogo')[0];
+
+  var clientEl = document.getElementsByName('client')[0];
+  var clientLongEl = document.getElementsByName('clientLong')[0];
+  var clientLogoEl = document.getElementsByName('clientLogo')[0];
+
+
   var formEl = document.getElementsByTagName('form')[0];
+  var titleEl = document.getElementsByTagName('title')[0];
   var devisDateEl = document.getElementsByName('devisDate')[0];
   var addItemEl = document.getElementById('addItem');
   var downloadEls = formEl.querySelectorAll('button.download-btn');
@@ -151,6 +162,28 @@
     return '#' + data.devisNum + ' ' + data.devisTitre + extension;
   };
 
+  var savePreset = function(data, preset) {
+    var x = store.get(preset) || {};
+
+    if (preset === 'consultant') {
+      if (!data.consultant) { return; }
+      x[data.consultant] = { adresse: data.consultantLong };
+      //console.log('consultantLogo', data.consultantLogo);
+      //RYM
+      if (data.consultantLogo) {// && data.consultantLogo.value) {
+        x[data.consultant].logo = data.consultantLogo;//.value;
+      }
+    } else if (preset === 'client') {
+      if (!data.client) { return; }
+      x[data.client] = { adresse: data.clientLong };
+      //if (data.clientLogo && data.clientLogo.value) {
+        //x.logo = data.clientLogo.value;
+      //}
+    } else { return; }
+
+    store.set(preset, x);
+  };
+
   var fromDefaults = function(data) {
     return Object.assign({
       consultant: '[nom-consultant]',
@@ -182,6 +215,10 @@
     saveLink.dispatchEvent(event);
   };
 
+  var devisTitle = function(data) {
+    return 'Devis de ' + data.consultant + ' pour ' + data.client;
+  };
+
   var updatePdf = function(data, download) {
     var tableBody = [[
       { text: '#', style: 'tableHeader'},
@@ -198,7 +235,13 @@
     var consultant = { stack: [], width: '*' };
     var extraMargin, coutTotal, docDefinition, pdf;
 
+    //RYM
+    savePreset(data, 'consultant');
+    savePreset(data, 'client');
+
     data = fromDefaults(data);
+
+    titleEl.innerHTML = devisTitle(data);
 
     extraMargin = [
       data.marginWidth,
@@ -252,7 +295,7 @@
         columns: [
           {
             width: 'auto',
-            text: 'Devis de ' + data.consultant + ' pour ' + data.client,
+            text: devisTitle(data),
             style: 'extra'
           },
           { text: data.devisDate, alignment: 'right' }
@@ -323,7 +366,7 @@
     if (event) { event.preventDefault(); }
     for (r = 0; r < stuff.length; ++r) {
       if (stuff[r].type === 'button') { continue; }
-      if (stuff[r].files && stuff[r].files[0]) {
+      if (stuff[r].files && stuff[r].files[0] && stuff[r].files[0].value) {
         ret[stuff[r].name] = stuff[r].files[0];
       } else {
         trimmed = stuff[r].value.trim();
@@ -341,7 +384,79 @@
         }
       }
     }
+    //RYM
     updatePdf(ret, download);
+  };
+
+  var consultantBlur = function(type) {
+    // delayed because it's triggered before the onclick event
+    setTimeout(function () {
+      var vavoomEl = document.getElementById('vavoom-' + type);
+      if (vavoomEl) { vavoomEl.style.display = 'none'; }
+    }, 150);
+  };
+
+  var pickConsultant = function(type, event) {
+    var vavoomEl = document.getElementById('vavoom-' + type);
+    var consultantsObj = store.get(type);
+
+    event.preventDefault();
+    vavoomEl.style.display = 'none';
+    if (type === 'consultant') {
+      consultantEl.value = event.target.innerHTML;
+      consultantLongEl.value = consultantsObj[event.target.innerHTML].adresse || '';
+
+      //console.log('consultantsObj[event.target.innerHTML]', consultantsObj[event.target.innerHTML]);
+      if (consultantsObj[event.target.innerHTML].logo) {
+        consultantLogoEl = consultantsObj[event.target.innerHTML].logo;
+        console.log('consultantLogoEl', consultantLogoEl);
+      }
+      //data.consultantLogo
+    } else if (type === 'client') {
+      clientEl.value = event.target.innerHTML;
+      clientLongEl.value = consultantsObj[event.target.innerHTML].adresse || '';
+    }
+
+    formSubmit();
+  };
+
+  var consultantFocus = function(type, event) {
+    var vavoomEl = document.getElementById('vavoom-' + type);
+    var consultantsObj, consultants, y, l;
+
+    consultantsObj = store.get(type);
+
+    if (!consultantsObj) { return; }
+
+    if (vavoomEl) {
+      vavoomEl.style.display = 'block';
+      return;
+    }
+
+    consultants = Object.keys(consultantsObj);
+
+    console.log('vavoomEl', consultants);
+
+    y = event.target.offsetTop;
+    l = document.createElement('ol');
+
+    l.id = 'vavoom-' + type;
+    //l.setAttribute('id', 'vavoom-consultant');
+    l.setAttribute('class', 'vavoom');
+    l.style.top = y + 'px';
+    l.style.display = 'block';
+    console.log('L:', l);
+    consultants.forEach(function(c) {
+      var i = document.createElement('li');
+      var a = document.createElement('a');
+      console.log('C', c);
+      a.innerHTML = c;
+      a.href = '#';
+      a.addEventListener('click', pickConsultant.bind(null, type));
+      i.appendChild(a);
+      l.appendChild(i);
+    });
+    formEl.appendChild(l);
   };
 
   var uploadImage = function(event) {
@@ -359,8 +474,21 @@
     });
   };
 
+  window.store = store;
   devisDateEl.value = dateFrench();
   formEl.addEventListener('submit', formSubmit.bind(null, false));
+
+  consultantEl.addEventListener('blur', consultantBlur.bind(null, 'consultant'));
+  consultantEl.addEventListener('focus', consultantFocus.bind(null, 'consultant'));
+  consultantEl.addEventListener('click', consultantFocus.bind(null, 'consultant'));
+
+
+  clientEl.addEventListener('blur', consultantBlur.bind(null, 'client'));
+  clientEl.addEventListener('focus', consultantFocus.bind(null, 'client'));
+  clientEl.addEventListener('click', consultantFocus.bind(null, 'client'));
+//  var clientLongEl = document.getElementsByName('clientLong')[0];
+
+
   addItemEl.addEventListener('click', addItemForm);
   for (r = 0; r < downloadEls.length; ++r) {
     downloadEls[r].addEventListener('click', formSubmit.bind(null, downloadEls[r].value));
