@@ -7,11 +7,11 @@
   var store = new Locally.Store();
   var consultantEl = document.getElementsByName('consultant')[0];
   var consultantLongEl = document.getElementsByName('consultantLong')[0];
-  var consultantLogoEl = document.getElementsByName('consultantLogo')[0];
+  //var consultantLogoEl = document.getElementsByName('consultantLogo')[0];
 
   var clientEl = document.getElementsByName('client')[0];
   var clientLongEl = document.getElementsByName('clientLong')[0];
-  var clientLogoEl = document.getElementsByName('clientLogo')[0];
+  //var clientLogoEl = document.getElementsByName('clientLogo')[0];
 
 
   var formEl = document.getElementsByTagName('form')[0];
@@ -162,16 +162,27 @@
     return '#' + data.devisNum + ' ' + data.devisTitre + extension;
   };
 
+  //RYM
   var savePreset = function(data, preset) {
     var x = store.get(preset) || {};
 
+    //console.log('FUNCTION: savePreset()')
+    //console.log('X (1):', preset, x);
+
+
     if (preset === 'consultant') {
+      //console.log('IF');
       if (!data.consultant) { return; }
+      //console.log('GO ON', data);
+
       x[data.consultant] = { adresse: data.consultantLong };
-      //console.log('consultantLogo', data.consultantLogo);
+      ////console.log('consultantLogo', data.consultantLogo);
       //RYM
-      if (data.consultantLogo) {// && data.consultantLogo.value) {
-        x[data.consultant].logo = data.consultantLogo;//.value;
+      if (data.consultantLogo) { // && data.consultantLogo.value) {
+        //console.log('data.consultantLogo:', data.consultantLogo);
+        x[data.consultant].logo = data.consultantLogo;//.getAttribute('data-img');//.value;
+      //} else if () {
+        //x[data.consultant].logo =
       }
     } else if (preset === 'client') {
       if (!data.client) { return; }
@@ -181,6 +192,7 @@
       //}
     } else { return; }
 
+    //console.log('X (2):', preset, x);
     store.set(preset, x);
   };
 
@@ -219,6 +231,7 @@
     return 'Devis de ' + data.consultant + ' pour ' + data.client;
   };
 
+  //RYM
   var updatePdf = function(data, download) {
     var tableBody = [[
       { text: '#', style: 'tableHeader'},
@@ -235,7 +248,10 @@
     var consultant = { stack: [], width: '*' };
     var extraMargin, coutTotal, docDefinition, pdf;
 
+    //console.log('FUNCTION: updatePdf()')
+
     //RYM
+    //console.log('DATA', data);
     savePreset(data, 'consultant');
     savePreset(data, 'client');
 
@@ -250,8 +266,8 @@
       data.marginHeight / 2
     ];
 
-    if (data.consultantLogo && data.consultantLogo.value) {
-      consultant.stack.push({ image: data.consultantLogo.value, width: 200 });
+    if (data.consultantLogo) { // && data.consultantLogo.value) {
+      consultant.stack.push({ image: data.consultantLogo/*.value*/, width: 200 });
     }
     consultant.stack.push(data.consultant);
     consultant.stack.push(data.consultantLong);
@@ -358,16 +374,37 @@
     }
   };
 
+  //RYM
   var formSubmit = function(download, event) {
     var ret = {};
     var stuff = formEl.querySelectorAll('*[name]');
-    var name, trimmed, value;
+    //var y = store.get('consultant');
+    var name, trimmed, value, x;
 
+    //console.log('FUNCTION: formSubmit()')
     if (event) { event.preventDefault(); }
     for (r = 0; r < stuff.length; ++r) {
       if (stuff[r].type === 'button') { continue; }
-      if (stuff[r].files && stuff[r].files[0] && stuff[r].files[0].value) {
-        ret[stuff[r].name] = stuff[r].files[0];
+      if (stuff[r].files && stuff[r].files[0]) {
+
+        //HERE
+        if (stuff[r].name === 'consultantLogo') {
+          x = stuff[r].getAttribute('data-img');
+          //x = consultantLogoEl.getAttribute('data-img');
+        } else if (stuff[r].name === 'clientLogo') {
+          //clientLogoEl.setAttribute('data-img', img);
+        } else {
+          x = false;
+          //y = ;
+        }
+
+        //event.target.files[0].setAttribute('data-img', img);
+        //event.target.files[0].value = img;
+        //x = stuff[r].files[0].getAttribute('data-img');
+        if (x) {
+          //console.log('X (666)', ret[stuff[r].name], x, r, stuff[r].name);
+          ret[stuff[r].name] = x;
+        }
       } else {
         trimmed = stuff[r].value.trim();
         if (stuff[r].name.indexOf('[]') === stuff[r].name.length - 2) {
@@ -396,9 +433,14 @@
     }, 150);
   };
 
+  //RYM
   var pickConsultant = function(type, event) {
     var vavoomEl = document.getElementById('vavoom-' + type);
     var consultantsObj = store.get(type);
+
+    //console.log('FUNCTION: pickConsultant()')
+
+    //console.log('X (3):', type, consultantsObj);
 
     event.preventDefault();
     vavoomEl.style.display = 'none';
@@ -406,25 +448,34 @@
       consultantEl.value = event.target.innerHTML;
       consultantLongEl.value = consultantsObj[event.target.innerHTML].adresse || '';
 
-      //console.log('consultantsObj[event.target.innerHTML]', consultantsObj[event.target.innerHTML]);
+      ////console.log('consultantsObj[event.target.innerHTML]', consultantsObj[event.target.innerHTML]);
+/*
       if (consultantsObj[event.target.innerHTML].logo) {
-        consultantLogoEl = consultantsObj[event.target.innerHTML].logo;
-        console.log('consultantLogoEl', consultantLogoEl);
+        consultantLogoEl.setAttribute('data-img', consultantsObj[event.target.innerHTML].logo);
+//        consultantLogoEl.value = consultantsObj[event.target.innerHTML].logo.value;
+//        //console.log('consultantLogoEl', consultantLogoEl);
       }
+*/
       //data.consultantLogo
     } else if (type === 'client') {
       clientEl.value = event.target.innerHTML;
       clientLongEl.value = consultantsObj[event.target.innerHTML].adresse || '';
     }
 
-    formSubmit();
+    setTimeout(function() {
+      formSubmit();
+    }, 50);
   };
 
+  //RYM
   var consultantFocus = function(type, event) {
     var vavoomEl = document.getElementById('vavoom-' + type);
     var consultantsObj, consultants, y, l;
 
+    //console.log('FUNCTION: consultantFocus()')
+
     consultantsObj = store.get(type);
+    //console.log('X (4):', type, consultantsObj);
 
     if (!consultantsObj) { return; }
 
@@ -435,7 +486,7 @@
 
     consultants = Object.keys(consultantsObj);
 
-    console.log('vavoomEl', consultants);
+    ////console.log('vavoomEl', consultants);
 
     y = event.target.offsetTop;
     l = document.createElement('ol');
@@ -445,11 +496,11 @@
     l.setAttribute('class', 'vavoom');
     l.style.top = y + 'px';
     l.style.display = 'block';
-    console.log('L:', l);
+    ////console.log('L:', l);
     consultants.forEach(function(c) {
       var i = document.createElement('li');
       var a = document.createElement('a');
-      console.log('C', c);
+      ////console.log('C', c);
       a.innerHTML = c;
       a.href = '#';
       a.addEventListener('click', pickConsultant.bind(null, type));
@@ -470,7 +521,14 @@
     else if (event.target.name === 'clientLogo') { name = 'clientBlackBG'; }
     if (name && document.getElementsByName(name)[0].checked) { options.bg = 'black'; }
     getBase64FromImage(URL.createObjectURL(file), options, function (img) {
-      event.target.files[0].value = img;
+      if (event.target.name === 'consultantLogo') {
+        event.target.setAttribute('data-img', img);
+        //consultantLogoEl.setAttribute('data-img', img);
+      } else if (event.target.name === 'clientLogo') {
+        //clientLogoEl.setAttribute('data-img', img);
+      }
+      //event.target.files[0].setAttribute('data-img', img);
+      //event.target.files[0].value = img;
     });
   };
 
@@ -480,12 +538,12 @@
 
   consultantEl.addEventListener('blur', consultantBlur.bind(null, 'consultant'));
   consultantEl.addEventListener('focus', consultantFocus.bind(null, 'consultant'));
-  consultantEl.addEventListener('click', consultantFocus.bind(null, 'consultant'));
+  //consultantEl.addEventListener('click', consultantFocus.bind(null, 'consultant'));
 
 
   clientEl.addEventListener('blur', consultantBlur.bind(null, 'client'));
   clientEl.addEventListener('focus', consultantFocus.bind(null, 'client'));
-  clientEl.addEventListener('click', consultantFocus.bind(null, 'client'));
+  //clientEl.addEventListener('click', consultantFocus.bind(null, 'client'));
 //  var clientLongEl = document.getElementsByName('clientLong')[0];
 
 
