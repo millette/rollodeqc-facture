@@ -1,4 +1,3 @@
-* prefer gulp-clean-css over gulp-minify-css in package.json
 * Checkbox "fond noir" s'applique seulement au moment de l'upload
 * Enlever un logo
 * Currency
