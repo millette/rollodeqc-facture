@@ -2,8 +2,7 @@
   "name": "rollodeqc-facture",
   "private": true,
   "dependencies": {
-    "modernizr": "~2.8.1",
-    "locallyjs": "~0.3.1",
+    "locallyjs": "~0.3.2",
     "pdfmake-dist": "^0.1.30"
   },
   "devDependencies": {

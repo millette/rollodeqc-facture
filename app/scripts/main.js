@@ -1,5 +1,5 @@
 (function() {
-  /* global pdfMake Locally*/
+  /* global pdfMake, Locally */
   'use strict';
 
   var r;
