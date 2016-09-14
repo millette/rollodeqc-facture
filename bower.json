@@ -3,8 +3,8 @@
   "private": true,
   "dependencies": {
     "modernizr": "~2.8.1",
-    "pdfmake": "~0.1.18",
-    "locallyjs": "~0.3.1"
+    "locallyjs": "~0.3.1",
+    "pdfmake-dist": "^0.1.30"
   },
   "devDependencies": {
     "chai": "~3.3.0",
