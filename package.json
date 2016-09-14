@@ -1,9 +1,25 @@
 {
   "name": "rollodeqc-facture",
-  "private": true,
+  "version": "0.0.0",
+  "description": "Générateur de factures PDF en ligne.",
+  "license": "AGPL-3.0",
+  "repository": "millette/rollodeqc-facture",
+  "author": {
+    "name": "Robin Millette",
+    "email": "robin@millette.info",
+    "url": "http://robin.millette.info"
+  },
   "engines": {
     "node": ">=4"
   },
+  "keywords": [
+    "rollodeqc",
+    "bill",
+    "billing",
+    "facture",
+    "facturation",
+    "pdf"
+  ],
   "devDependencies": {
     "babel-core": "^5.5.6",
     "browser-sync": "^2.2.1",
