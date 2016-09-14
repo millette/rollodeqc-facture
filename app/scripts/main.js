@@ -16,7 +16,7 @@
 
   var formEl = document.getElementsByTagName('form')[0];
   var titleEl = document.getElementsByTagName('title')[0];
-  var devisDateEl = document.getElementsByName('devisDate')[0];
+  var factureDateEl = document.getElementsByName('factureDate')[0];
   var addItemEl = document.getElementById('addItem');
   var downloadEls = formEl.querySelectorAll('button.download-btn');
   var imageEls = formEl.querySelectorAll('input[type=file]');
@@ -157,9 +157,9 @@
     return units.join(' ');
   };
 
-  var devisFilename = function(data, extension) {
+  var factureFilename = function(data, extension) {
     if (extension === undefined) { extension = '.pdf'; }
-    return '#' + data.devisNum + ' ' + data.devisTitre + extension;
+    return '#' + data.factureNum + ' ' + data.factureTitre + extension;
   };
 
   //RYM
@@ -200,9 +200,9 @@
     return Object.assign({
       consultant: '[nom-consultant]',
       client: '[nom-client]',
-      devisTitre: '[titre-devis]',
-      devisNum: '[numero-devis]',
-      devisDate: '[date-devis]',
+      factureTitre: '[titre-facture]',
+      factureNum: '[numero-facture]',
+      factureDate: '[date-facture]',
       conditions: '[conditions]',
       consultantLong: '[adresse-consultant]',
       clientLong: '[adresse-client]',
@@ -227,8 +227,8 @@
     saveLink.dispatchEvent(event);
   };
 
-  var devisTitle = function(data) {
-    return 'Devis de ' + data.consultant + ' pour ' + data.client;
+  var factureTitle = function(data) {
+    return 'Facture de ' + data.consultant + ' pour ' + data.client;
   };
 
   //RYM
@@ -257,7 +257,7 @@
 
     data = fromDefaults(data);
 
-    titleEl.innerHTML = devisTitle(data);
+    titleEl.innerHTML = factureTitle(data);
 
     extraMargin = [
       data.marginWidth,
@@ -311,17 +311,17 @@
         columns: [
           {
             width: 'auto',
-            text: devisTitle(data),
+            text: factureTitle(data),
             style: 'extra'
           },
-          { text: data.devisDate, alignment: 'right' }
+          { text: data.factureDate, alignment: 'right' }
         ]
       },
       footer: function (current, pages) {
         return {
           margin: extraMargin,
           columns: [
-            { text: 'Devis #' + data.devisNum, style: 'extra' },
+            { text: 'Facture #' + data.factureNum, style: 'extra' },
             { text: 'Page ' + current + ' de ' + pages, alignment: 'right'}
           ]
         };
@@ -331,9 +331,9 @@
       content: [
         { columns: [ consultant, client ] },
         '\n',
-        { text: 'Devis', style: 'header' },
-        { text: data.devisTitre, style: 'header2' },
-        'numéro de devis: ' + data.devisNum,
+        { text: 'Facture', style: 'header' },
+        { text: data.factureTitre, style: 'header2' },
+        'numéro de facture: ' + data.factureNum,
         '\n',
         {
           table: {
@@ -366,10 +366,10 @@
       data.conditions, '\n', annexe, notesHeader, data.notes);
 
     if (download === 'json') {
-      downloadJson(devisFilename(data, '.json'), docDefinition);
+      downloadJson(factureFilename(data, '.json'), docDefinition);
     } else {
       pdf = pdfMake.createPdf(docDefinition);
-      if (download === 'pdf') { pdf.download(devisFilename(data)); }
+      if (download === 'pdf') { pdf.download(factureFilename(data)); }
       else { pdf.getDataUrl(function (outDoc) { document.getElementById('pdfV').src = outDoc; }); }
     }
   };
@@ -533,7 +533,7 @@
   };
 
   window.store = store;
-  devisDateEl.value = dateFrench();
+  factureDateEl.value = dateFrench();
   formEl.addEventListener('submit', formSubmit.bind(null, false));
 
   consultantEl.addEventListener('blur', consultantBlur.bind(null, 'consultant'));

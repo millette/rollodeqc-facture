@@ -1,7 +1,8 @@
 {
+  "name": "rollodeqc-facture",
   "private": true,
   "engines": {
-    "node": ">=0.12.0"
+    "node": ">=4"
   },
   "devDependencies": {
     "babel-core": "^5.5.6",

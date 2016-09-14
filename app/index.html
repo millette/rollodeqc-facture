@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="description" content="">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Générateur de devis RoLLodeQc</title>
+    <title>Générateur de facture RoLLodeQc</title>
 
     <link rel="apple-touch-icon" href="apple-touch-icon.png">
     <!-- Place favicon.ico in the root directory -->
@@ -28,7 +28,7 @@
     <![endif]-->
 
     <div>
-      <h1>Générateur de devis <small>un outil du <a href="http://www.rollodeqc.com/">RoLLodeQc</a> par <a href="http://robin.millette.info/">Robin Millette</a></small></h1>
+      <h1>Générateur de facture <small>un outil du <a href="http://www.rollodeqc.com/">RoLLodeQc</a> par <a href="http://robin.millette.info/">Robin Millette</a></small></h1>
       <p>Voir des <a href="http://lab.rollodeqc.com/">stats sur les développeurs québécois</a> et une <a href="http://dev.rollodeqc.com/">version préliminaire du bottin des développeurs</a>.
 
 <a href="https://twitter.com/RoLLodeQc" class="twitter-follow-button" data-show-count="false" data-size="large">Follow @RoLLodeQc</a>
@@ -62,12 +62,12 @@
       </fieldset>
       <fieldset>
         <legend>Informations</legend>
-        <label>titre:<input type="text" name="devisTitre" value=""></label>
-        <label># de devis:<input type="number" name="devisNum" value="1"></label>
-        <label>date:<input type="date" name="devisDate" value=""></label>
-        <label>conditions:<textarea rows="5" name="conditions">TPS et TVQ non applicables.
-Délai de réalisation: 4 semaines.
-Offre valable 3 mois.</textarea></label>
+        <label>titre:<input type="text" name="factureTitre" value=""></label>
+        <label># de facture:<input type="number" name="factureNum" value="1"></label>
+        <label>date:<input type="date" name="factureDate" value=""></label>
+        <label>conditions:<textarea rows="5" name="conditions">TPS et TVQ non applicables (petit fournisseur);
+voir http://goo.gl/lYJe3g [www.revenuquebec.ca].
+Payable en 30 jours.</textarea></label>
         <label>notes:<textarea rows="5" name="notes"></textarea></label>
       </fieldset>
       <button id="addItem" type="button">+item</button>
