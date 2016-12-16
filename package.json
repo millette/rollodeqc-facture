@@ -1,6 +1,6 @@
 {
   "name": "rollodeqc-facture",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "Générateur de factures PDF en ligne.",
   "license": "AGPL-3.0",
   "repository": "millette/rollodeqc-facture",
