@@ -21,7 +21,7 @@
   var downloadEls = formEl.querySelectorAll('button.download-btn');
   var imageEls = formEl.querySelectorAll('input[type=file]');
 
-  var makeInput = function(label, name, type) {
+  var makeInput = function(label, name, type, step) {
     var labelEl = document.createElement('label');
     var inputEl = document.createElement('input');
 
@@ -29,6 +29,9 @@
     if (name === undefined) { name = label; }
     inputEl.setAttribute('name', name + '[]');
     inputEl.setAttribute('type', type);
+
+    if (step) inputEl.setAttribute('step', step);
+
     labelEl.appendChild(document.createTextNode(label + ': '));
     labelEl.appendChild(inputEl);
     return labelEl;
@@ -39,7 +42,7 @@
     var legendEl = document.createElement('legend');
     var inputProjetEl = makeInput('projet');
     var inputDescriptionEl = makeInput('description');
-    var inputCoutEl = makeInput('coût', 'cout', 'number');
+    var inputCoutEl = makeInput('coût', 'cout', 'number', 0.01);
     var detailsEl = document.createElement('label');
     var detailsTextareaEl = document.createElement('textarea');
     var deleteEl = document.createElement('button');
@@ -282,7 +285,8 @@
       items.push({
         projet: projet,
         description: data.description[n],
-        cout: parseInt(data.cout[n], 10) || 0,
+        // cout: parseInt(data.cout[n], 10) || 0,
+        cout: parseFloat(data.cout[n]) || 0,
         details: parseDetails(data.details[n])
       });
     });
